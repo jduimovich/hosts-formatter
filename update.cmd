@@ -15,7 +15,7 @@ type %HOSTS_CURRENT%
 echo.
 type %LAST_SKIP%
 type %LAST_COPY%
-choice /D N /T 1 > nul
+choice /D N /T 3 > nul
 
 rem find if resorting is different and if so, update
 node %~dp0\hf.js > %HOSTS_NEW%
