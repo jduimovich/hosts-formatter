@@ -1,34 +1,28 @@
-@echo off 
+@echo off  
 
-set LAST_COPY=%~dp0\tmp.hosts.lastcopy
-set LAST_SKIP=%~dp0\tmp.hosts.lastcheck
-set HOSTS_CURRENT=C:\Windows\System32\drivers\etc\hosts
-set HOSTS_NEW=%~dp0\tmp.hosts.new
-
-echo "No Updates Yet in %dp0%" > %LAST_COPY%
-echo "No Checks Yet" > %LAST_SKIP%
+set ROUTES=%~dp0\routes.json 
+set UPDATE=%~dp0\tmp.update-routes.cmd
 
 :L1
-cls 
+oc get routes --all-namespaces -o json > %ROUTES% 2> null
+
+if %ERRORLEVEL% == 1 goto :NOCONNECT
+
+node %~dp0\getroutes.js %ROUTES% > %UPDATE%
+call %UPDATE%
 echo.  
-type %HOSTS_CURRENT%
-echo.
-type %LAST_SKIP%
-type %LAST_COPY%
-choice /D N /T 3 > nul
-
-rem find if resorting is different and if so, update
-node %~dp0\hf.js > %HOSTS_NEW%
-
-diff %HOSTS_CURRENT% %HOSTS_NEW%
-set RC=%ERRORLEVEL% 
-if %RC% == 0 goto :nocopy
-
-:copy
-copy %HOSTS_NEW%  %HOSTS_CURRENT%
-echo Last update at: %time% Copied RC = %RC% > %LAST_COPY%  
+cls  
+type C:\Windows\System32\drivers\etc\hosts
+echo. 
+choice /D N /T 10 > nul  
 goto :L1
- 
-:nocopy 
-echo Last check at: %time% Copied RC = %RC% > %LAST_SKIP%   
-goto :L1
+
+
+:NOCONNECT
+cls  
+type C:\Windows\System32\drivers\etc\hosts
+echo. 
+echo "Openshift not running - ignoring hosts updates"   %time%
+echo. 
+choice /D N /T 2 > nul   
+goto :L1 
