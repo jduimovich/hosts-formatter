@@ -5,9 +5,8 @@ if (routes == undefined) {
     console.log('No routes.json found exit');
     return
 }
-
-console.log ("Routes file ", routes) 
-fs.readFile('./routes.json', function(err, data) {
+ 
+fs.readFile(routes, function(err, data) {
    
     if (err) {
         console.log('No routes.json found ('+err+'). Using default routes');

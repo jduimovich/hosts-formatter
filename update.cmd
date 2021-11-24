@@ -1,17 +1,29 @@
 @echo off  
 
-set ROUTES=%~dp0\routes.json 
-set UPDATE=%~dp0\tmp.update-routes.cmd
+set BASE=g:\Dev\hosts-formatter
+
+set ROUTES=%BASE%\routes.json 
+set UPDATE=%BASE%\tmp.update-routes.cmd
+
+rd .kube /s /q
+mkdir .kube
+SET KUBECONFIG=G:\Dev\hosts-formatter\.kube\config
+xcopy c:\Users\jduim\.kube .kube /s
+call crck
 
 :L1
 oc get routes --all-namespaces -o json > %ROUTES% 2> null
 
 if %ERRORLEVEL% == 1 goto :NOCONNECT
 
-node %~dp0\getroutes.js %ROUTES% > %UPDATE%
+g:\bin\nodejs\node %BASE%\getroutes.js %ROUTES% > %UPDATE%
 call %UPDATE%
+cls
 echo.  
-cls  
+echo %time%
+echo.   
+g:\bin\nodejs\node %BASE%\getroutes.js %ROUTES%  
+echo.
 type C:\Windows\System32\drivers\etc\hosts
 echo. 
 choice /D N /T 10 > nul  
